@@ -1,4 +1,5 @@
 library(shiny)
+library(immunarch)
 data(immdata)
 
 
@@ -12,7 +13,6 @@ ui <- fluidPage(
     checkboxInput(
         'grouped',
         'Group data?',
-        value = F,
     ),
     conditionalPanel(
         condition = "input.grouped == true",
@@ -20,22 +20,27 @@ ui <- fluidPage(
             'by',
             'Choose data grouping:',
             choices = colnames(immdata$meta),
+        ),
     ),
     plotOutput('plot'),
-    ),
 )
 
 server <- function(input, output) {
-    div_data <- reactive(repDiversity(immdata$data, input$method))
-    by <- reactive(if (input$grouped) input$by else NA)
-    meta <- reactive(if (input$grouped) immdata$meta else NA)
-
-    output$plot <- renderPlot({
-        vis(
-            div_data(),
-            .by = by(),
-            .meta = meta(),
+    observe({
+        div_data <- repDiversity(
+            immdata$data,
+            input$method
         )
+        by <- if (input$grouped) input$by else NA
+        meta <- if (input$grouped) immdata$meta else NA
+        
+        output$plot <- renderPlot({
+            vis(
+                div_data,
+                .by = by,
+                .meta = meta,
+            )
+        })
     })
 }
 

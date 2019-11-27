@@ -1,9 +1,17 @@
 library(shiny)
+library(shinyFiles)
 library(immunarch)
 data(immdata)
 
 
 ui <- fluidPage(
+    shinyDirButton(
+        'folder',
+        'Folder select',
+        'Select a folder with data',
+        FALSE,
+    ),
+    verbatimTextOutput("dir", placeholder = TRUE),
     selectInput(
         'method',
         'Choose estimation method',
@@ -26,6 +34,35 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
+    shinyDirChoose(
+        input,
+        'folder',
+        roots = c(wd = '/'),
+    )
+
+    global <- reactiveValues(datapath = getwd())
+
+    folder <- reactive(input$folder)
+
+    output$dir <- renderText({
+        global$datapath
+    })
+    
+    observeEvent(
+        ignoreNULL = TRUE,
+        eventExpr = {
+            input$folder
+        },
+        handlerExpr = {
+            if (!"path" %in% names(folder())) return()
+            req(is.list(input$folder))
+            wd <- normalizePath("/")
+            global$datapath <-
+                 file.path(wd, paste(unlist(folder()$path[-1]), collapse = .Platform$file.sep))
+            immdata <- repLoad(global$datapath)
+        }
+    )
+    
     observe({
         div_data <- repDiversity(
             immdata$data,
@@ -33,7 +70,7 @@ server <- function(input, output) {
         )
         by <- if (input$grouped) input$by else NA
         meta <- if (input$grouped) immdata$meta else NA
-        
+
         output$plot <- renderPlot({
             vis(
                 div_data,
@@ -44,4 +81,7 @@ server <- function(input, output) {
     })
 }
 
-shinyApp(ui = ui, server = server)
+runApp(list(
+    ui=ui,
+    server=server
+))

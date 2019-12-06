@@ -5,32 +5,43 @@ data(immdata)
 
 
 ui <- fluidPage(
-    shinyDirButton(
-        'folder',
-        'Folder select',
-        'Select a folder with data',
-        FALSE,
-    ),
-    verbatimTextOutput("dir", placeholder = TRUE),
-    selectInput(
-        'method',
-        'Choose estimation method',
-        choices = list('chao1', 'hill', 'div', 'gini.simp',
-                    'inv.simp', 'gini', 'raref', 'd50', 'dxx'),
-    ),
-    checkboxInput(
-        'grouped',
-        'Group data?',
-    ),
-    conditionalPanel(
-        condition = "input.grouped == true",
-        checkboxGroupInput(
-            'by',
-            'Choose data grouping:',
-            choices = colnames(immdata$meta),
+    sidebarLayout(
+        sidebarPanel(
+            shinyDirButton(
+                'folder',
+                'Load data',
+                'Select a folder with data:',
+                F,
+                class = 'btn-success',
+            ),
+            verbatimTextOutput("dir", placeholder = TRUE),
+            selectInput(
+                'method',
+                'Choose estimation method',
+                choices = list('chao1', 'hill', 'div', 'gini.simp',
+                            'inv.simp', 'gini', 'raref', 'd50', 'dxx'),
+            ),
+            checkboxInput(
+                'grouped',
+                'Group data?',
+            ),
+            conditionalPanel(
+                condition = "input.grouped == true",
+                checkboxGroupInput(
+                    'by',
+                    'Choose data grouping:',
+                    choices = colnames(immdata$meta),
+                ),
+            ),
         ),
-    ),
-    plotOutput('plot'),
+        mainPanel(
+            tabsetPanel(
+                type = "tabs", 
+                tabPanel("Plot", plotOutput("plot")), 
+                tabPanel("Metadata", tableOutput("metadata"), class = 'rightAlign')
+            )
+        )
+    )
 )
 
 server <- function(input, output) {
@@ -70,6 +81,10 @@ server <- function(input, output) {
         )
         by <- if (input$grouped) input$by else NA
         meta <- if (input$grouped) immdata$meta else NA
+        
+        output$metadata <- renderTable(
+            immdata$meta,
+        )
 
         output$plot <- renderPlot({
             vis(

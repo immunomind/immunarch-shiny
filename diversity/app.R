@@ -1,7 +1,7 @@
 library(shiny)
 library(shinyFiles)
 library(immunarch)
-data(immdata)
+# data(immdata)
 
 
 ui <- fluidPage(
@@ -96,7 +96,7 @@ server <- function(input, output) {
     })
 }
 
-runApp(list(
+shinyApp(
     ui=ui,
     server=server
-))
+)

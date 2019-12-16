@@ -1,7 +1,7 @@
 library(shiny)
 library(shinyFiles)
 library(immunarch)
-# data(immdata)
+data(immdata)
 
 
 ui <- fluidPage(
@@ -27,11 +27,7 @@ ui <- fluidPage(
             ),
             conditionalPanel(
                 condition = "input.grouped == true",
-                checkboxGroupInput(
-                    'by',
-                    'Choose data grouping:',
-                    choices = colnames(immdata$meta),
-                ),
+                uiOutput("groupSelection"),
             ),
         ),
         mainPanel(
@@ -50,6 +46,7 @@ server <- function(input, output) {
         'folder',
         roots = c(wd = '/'),
     )
+    parse_data <- reactiveValues(data = immdata$data, meta = immdata$meta)
 
     global <- reactiveValues(datapath = getwd())
 
@@ -71,19 +68,30 @@ server <- function(input, output) {
             global$datapath <-
                  file.path(wd, paste(unlist(folder()$path[-1]), collapse = .Platform$file.sep))
             immdata <- repLoad(global$datapath)
+            immdata$data <- lapply(immdata$data, setDT)
+            parse_data$data <- immdata$data
+            parse_data$meta <- immdata$meta
         }
     )
     
     observe({
+        output$groupSelection <- renderUI({
+            checkboxGroupInput(
+                'by',
+                'Choose data grouping:',
+                choices = colnames(parse_data$meta),
+            )
+        })
+        
         div_data <- repDiversity(
-            immdata$data,
+            parse_data$data,
             input$method
         )
         by <- if (input$grouped) input$by else NA
-        meta <- if (input$grouped) immdata$meta else NA
+        meta <- if (input$grouped) parse_data$meta else NA
         
         output$metadata <- renderTable(
-            immdata$meta,
+            parse_data$meta,
         )
 
         output$plot <- renderPlot({

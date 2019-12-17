@@ -46,10 +46,9 @@ server <- function(input, output) {
         'folder',
         roots = c(wd = '/'),
     )
+    
     immdata <- reactiveValues(data = immdata)
-
     global <- reactiveValues(datapath = getwd())
-
     folder <- reactive(input$folder)
 
     output$dir <- renderText({
@@ -69,31 +68,41 @@ server <- function(input, output) {
                  file.path(wd, paste(unlist(folder()$path[-1]), collapse = .Platform$file.sep))
             immdata$data <- repLoad(global$datapath)
             immdata$data$data <- lapply(immdata$data$data, setDT)
-        }
+        },
     )
     
+    output$groupSelection <- renderUI({
+        checkboxGroupInput(
+            'by',
+            'Choose data grouping:',
+            choices = colnames(immdata$data$meta),
+        )
+    })
+    
     observe({
-        output$groupSelection <- renderUI({
-            checkboxGroupInput(
-                'by',
-                'Choose data grouping:',
-                choices = colnames(immdata$data$meta),
-            )
-        })
-        
         div_data <- repDiversity(
             immdata$data$data,
             input$method
         )
         
-        by <- if (input$grouped) input$by else NA
-        if (input$grouped) print(by)
-        meta <- if (input$grouped) immdata$data$meta else NA
-        
         output$metadata <- renderTable(
             immdata$data$meta,
         )
-
+        
+        if (length(input$by) == 0) {
+            output$plot <- renderPlot({
+                vis(
+                    div_data,
+                    .by = NA,
+                    .meta = NA,
+                )
+            })
+            return()
+        }
+        
+        by <- input$by
+        meta <- immdata$data$meta
+        
         output$plot <- renderPlot({
             vis(
                 div_data,

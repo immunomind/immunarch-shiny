@@ -46,7 +46,7 @@ server <- function(input, output) {
         'folder',
         roots = c(wd = '/'),
     )
-    parse_data <- reactiveValues(data = immdata$data, meta = immdata$meta)
+    immdata <- reactiveValues(data = immdata)
 
     global <- reactiveValues(datapath = getwd())
 
@@ -67,10 +67,8 @@ server <- function(input, output) {
             wd <- normalizePath("/")
             global$datapath <-
                  file.path(wd, paste(unlist(folder()$path[-1]), collapse = .Platform$file.sep))
-            immdata <- repLoad(global$datapath)
-            immdata$data <- lapply(immdata$data, setDT)
-            parse_data$data <- immdata$data
-            parse_data$meta <- immdata$meta
+            immdata$data <- repLoad(global$datapath)
+            immdata$data$data <- lapply(immdata$data$data, setDT)
         }
     )
     
@@ -79,19 +77,21 @@ server <- function(input, output) {
             checkboxGroupInput(
                 'by',
                 'Choose data grouping:',
-                choices = colnames(parse_data$meta),
+                choices = colnames(immdata$data$meta),
             )
         })
         
         div_data <- repDiversity(
-            parse_data$data,
+            immdata$data$data,
             input$method
         )
+        
         by <- if (input$grouped) input$by else NA
-        meta <- if (input$grouped) parse_data$meta else NA
+        if (input$grouped) print(by)
+        meta <- if (input$grouped) immdata$data$meta else NA
         
         output$metadata <- renderTable(
-            parse_data$meta,
+            immdata$data$meta,
         )
 
         output$plot <- renderPlot({

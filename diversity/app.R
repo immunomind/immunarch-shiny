@@ -11,7 +11,7 @@ ui <- fluidPage(
                 'folder',
                 'Load data',
                 'Select a folder with data:',
-                F,
+                FALSE,
                 class = 'btn-success',
             ),
             verbatimTextOutput("dir", placeholder = TRUE),
@@ -40,7 +40,7 @@ ui <- fluidPage(
     )
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
     shinyDirChoose(
         input,
         'folder',
@@ -56,7 +56,6 @@ server <- function(input, output) {
     })
     
     observeEvent(
-        ignoreNULL = TRUE,
         eventExpr = {
             input$folder
         },
@@ -68,15 +67,23 @@ server <- function(input, output) {
                  file.path(wd, paste(unlist(folder()$path[-1]), collapse = .Platform$file.sep))
             immdata$data <- repLoad(global$datapath)
             immdata$data$data <- lapply(immdata$data$data, setDT)
+            updateCheckboxInput(
+                session = session,
+                inputId = 'grouped',
+                value = FALSE,
+            )
         },
     )
     
-    output$groupSelection <- renderUI({
-        checkboxGroupInput(
-            'by',
-            'Choose data grouping:',
-            choices = colnames(immdata$data$meta),
-        )
+    observe({
+        req(!input$grouped)
+        output$groupSelection <- renderUI({
+            checkboxGroupInput(
+                'by',
+                'Choose data grouping:',
+                choices = colnames(immdata$data$meta),
+            )
+        })
     })
     
     observe({

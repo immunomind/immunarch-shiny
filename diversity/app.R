@@ -41,6 +41,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
+    # get path to user directory
     shinyDirChoose(
         input,
         'folder',
@@ -55,6 +56,7 @@ server <- function(input, output, session) {
         global$datapath
     })
     
+    # load data from user directory if it is set
     observeEvent(
         eventExpr = {
             input$folder
@@ -75,6 +77,7 @@ server <- function(input, output, session) {
         },
     )
     
+    # grouping data options
     observe({
         req(!input$grouped)
         output$groupSelection <- renderUI({
@@ -86,6 +89,7 @@ server <- function(input, output, session) {
         })
     })
     
+    # render plots using grouping options
     observe({
         div_data <- repDiversity(
             immdata$data$data,

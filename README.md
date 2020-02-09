@@ -8,7 +8,8 @@
 - Speed up the process of scientific insights generation
 
 ## Requirements
-Imports:
+#### Imports:
+```
     heatmap3 (>= 1.1.6),
     ggrepel (>= 0.8.0),
     reshape2 (>= 1.4.2),
@@ -36,7 +37,9 @@ Imports:
     rlang (>= 0.4),
     plyr,
     dbplyr (>= 1.4.0)
-Depends:
+```
+#### Depends:
+```
     R (>= 3.5.0),
     ggplot2 (>= 3.1.0),
     dplyr (>= 0.8.0),
@@ -44,13 +47,16 @@ Depends:
     data.table (>= 1.12.6),
     gridExtra (>= 2.2.1),
     immunarch (>= 0.5.5)
-Suggests:
+```
+#### Suggests:
+```
     knitr (>= 1.8),
     roxygen2 (>= 3.0.0),
     testthat (>= 2.1.0),
     pkgdown (>= 0.1.0),
     assertthat,
     sparklyr (>= 1.0)
+```
 
 ## Instructions
 Launch Shiny app from terminal:
@@ -68,7 +74,7 @@ Alternatively, you can open application code in R Studio and launch by `Run App`
 
 ## References
 - R programming language (https://r-project.org/)
-- `Shiny` framework (https://shiny.rstudio.com/)
+- Shiny framework (https://shiny.rstudio.com/)
 - Mastering Shiny, tutorial under early development (https://mastering-shiny.org)
 - `immunarch` package for immune data analysis (https://immunarch.com/)
 - Miho, E., Yermanos, A., Weber, C.R., Berger, C.T., Reddy, S.T. and Greiff, V., 2018. Computational strategies for dissecting the high-dimensional complexity of adaptive immune repertoires. Frontiers in immunology, 9, p.224.

@@ -1,7 +1,7 @@
 # `immunarch-shiny` - A Shiny application for visualizing immune repertoire statistics
 
 ## Introduction
-`immunarch-shiny` is a simple application allowing user to upload their data and immediately get plots for various immune repertoires features. Currently only diveristy estimation is available.
+`immunarch-shiny` is a simple application allowing user to upload their data and immediately get plots for various immune repertoires features. Currently only diversity estimation is available.
 
 ## Project Goals
 - Make possible analysis of immune repertoires without R knowledge
